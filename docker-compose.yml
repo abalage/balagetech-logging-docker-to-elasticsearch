@@ -1,0 +1,142 @@
+version: '3'
+services:
+
+    nginx_proxy:
+        image: nginx:1.14
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - ./container-configs/nginx/proxy/conf.d/reverse_proxy.conf:/etc/nginx/conf.d/reverse_proxy.conf:ro
+            - ./container-configs/nginx/ssl:/etc/nginx/ssl:ro
+        depends_on:
+            - nginx_nextcloud_1
+            - nginx_nextcloud_2
+            - elasticsearch
+        networks:
+            - example-net
+        networks:
+            example-net:
+                ipv4_address: 172.20.0.30
+        logging:
+            driver: journald
+            options:
+                labels: "application"
+                tag: "nginx"
+        labels:
+            application: "reverse_proxy"
+        restart: always
+
+    nginx_nextcloud_1:
+        image: nginx:1.14
+        volumes:
+            - ./container-configs/nginx/backend_nextcloud/:/etc/nginx:ro
+            - /srv/www/nextcloud_1:/var/www
+        depends_on:
+            - php-fpm-nextcloud_1
+        networks:
+            - example-net
+        logging:
+            driver: journald
+            options:
+                labels: "application"
+                tag: "nginx"
+        labels:
+            application: "nextcloud_1"
+        restart: always
+
+    nginx_nextcloud_2:
+        image: nginx:1.14
+        volumes:
+            - ./container-configs/nginx/backend_nextcloud_2/:/etc/nginx:ro
+            - /srv/www/nextcloud_2:/var/www
+        depends_on:
+            - php-fpm-nextcloud_2
+        networks:
+            - example-net
+        logging:
+            driver: journald
+            options:
+                labels: "application"
+                tag: "nginx"
+        labels:
+            application: "nextcloud_2"
+        restart: always
+
+    php-fpm-nextcloud_1:
+        image: php:7.2-fpm
+        volumes:
+            - /srv/www/nextcloud_1:/var/www
+        networks:
+            - example-net
+        extra_hosts:
+            - "mariadb:172.18.0.20"
+        logging:
+            driver: journald
+            options:
+                labels: "application"
+                tag: "php"
+        labels:
+            pplication: "nextcloud_1"
+        restart: always
+
+    php-fpm-nextcloud_2:
+        image: php:7.2-fpm
+        volumes:
+            - /srv/www/nextcloud_2:/var/www
+        networks:
+            - example-net
+        extra_hosts:
+            - "mariadb:172.18.0.20"
+        logging:
+            driver: journald
+            options:
+                labels: "application"
+                tag: "php"
+        labels:
+            application: "nextcloud_2"
+        restart: always
+
+    elasticsearch:
+        image: "docker.elastic.co/elasticsearch/elasticsearch:6.5.0"
+        hostname: elasticsearch
+        ports:
+            - "9200:9200"
+        environment:
+            - bootstrap.memory_lock=true
+            - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+        volumes:
+            - elasticdata:/usr/share/elasticsearch/data
+            - "./container-configs/elk/es/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml"
+        ulimits:
+            memlock:
+              soft: -1
+              hard: -1
+        networks:
+            example-net:
+                ipv4_address: 172.20.0.40
+        restart: always
+
+    kibana:
+        image: "docker.elastic.co/kibana/kibana:6.5.0"
+        hostname: kibana
+        ports:
+            - "5601:5601"
+        volumes:
+            - "./container-configs/elk/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml"
+        networks:
+            - example-net
+        restart: always
+
+volumes:
+    elasticdata:
+        driver: local
+
+networks:
+    example-net:
+        driver: bridge
+        driver_opts:
+            com.docker.network.bridge.name: br-docker-0
+        ipam:
+            config:
+                - subnet: 172.20.0.0/16

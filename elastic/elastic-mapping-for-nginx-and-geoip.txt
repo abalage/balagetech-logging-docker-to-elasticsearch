@@ -1,0 +1,36 @@
+PUT /docker-containers
+{
+   "mappings" : {
+      "test" : {
+         "properties" : {
+            "geoip2" : {
+               "properties" : {
+                  "location2" : {
+                     "type" : "geo_point"
+                  }
+               }
+            },
+            "nginx" : {
+               "properties" : {
+                  "response" : {
+                     "type" : "integer"
+                  },
+                  "bytes" : {
+                     "type" : "integer"
+                  },
+                  "agent" : {
+                     "type" : "text"
+                  },
+                  "clientip" : {
+                     "type" : "ip"
+                  }
+               }
+            },
+            "PID": {
+              "type": "integer"
+            }
+         }
+      }
+   }
+}
+
