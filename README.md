@@ -2,8 +2,6 @@
 Configurations for syslog-ng and Docker to log into Elasticsearch
 
 * This repo contains a complete configuration for syslog-ng to logging Docker containers into Elasticsearch
-  * It is also capable to parse Common Log Format or Combined Log Format for NGINX/Apache.
-  * Plus enriches logs with GeoIP data by using client IP from access logs.
 * Importable Visualizations, Dashboard and a connecting Index pattern to be used with Kibana
 * A text file describing an explicit mapping for some attributes of the logs.
 
