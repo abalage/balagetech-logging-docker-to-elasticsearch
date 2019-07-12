@@ -1,0 +1,52 @@
+te/docker-containers
+{
+  "index_patterns": ["docker-containers-*"],
+  "settings": {
+    "number_of_shards": 1
+  },
+   "mappings" : {
+      "properties" : {
+         "tags" : {
+            "type" : "keyword"
+         },
+         "message" : {
+            "type" : "text"
+         },
+         "process.name" : {
+            "type" : "keyword"
+         },
+         "host" : {
+            "properties" : {
+               "ip" : {
+                  "type" : "ip"
+               },
+               "name" : {
+                  "type" : "keyword"
+               }
+            }
+         },
+         "container" : {
+            "properties" : {
+               "id" : {
+                  "type" : "keyword"
+               },
+               "runtime" : {
+                  "type" : "keyword"
+               },
+               "image.name" : {
+                  "type" : "keyword"
+               },
+               "image.tag" : {
+                  "type" : "keyword"
+               },
+               "labels" : {
+                  "type" : "object"
+               },
+               "name" : {
+                  "type" : "keyword"
+               }
+             }
+         }
+      }
+   }
+}

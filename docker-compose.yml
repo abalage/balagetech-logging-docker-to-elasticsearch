@@ -1,113 +1,81 @@
 version: '3'
 services:
 
-    nginx_proxy:
-        image: nginx:1.14
+    proxy:
+        image: nginx:1.16
+        environment:
+            - TZ="UTC"
         ports:
             - "80:80"
             - "443:443"
         volumes:
-            - ./container-configs/nginx/proxy/conf.d/reverse_proxy.conf:/etc/nginx/conf.d/reverse_proxy.conf:ro
-            - ./container-configs/nginx/ssl:/etc/nginx/ssl:ro
+            - ./service-configuration/nginx/proxy/conf.d/reverse_proxy.conf:/etc/nginx/conf.d/reverse_proxy.conf:ro
+            - ./service-configuration/nginx/proxy/htpasswd:/etc/nginx/htpasswd:ro
+            - ./service-configuration/nginx/ssl:/etc/nginx/ssl:ro
         depends_on:
-            - nginx_nextcloud_1
-            - nginx_nextcloud_2
-            - elasticsearch
+            - nextcloud-www
         networks:
             - example-net
-        networks:
-            example-net:
-                ipv4_address: 172.20.0.30
         logging:
             driver: journald
             options:
                 labels: "application"
-                tag: "nginx"
+                tag: "nginx|{{.ImageName}}|{{.DaemonName}}"
         labels:
             application: "reverse_proxy"
         restart: always
 
-    nginx_nextcloud_1:
-        image: nginx:1.14
+    nextcloud-www:
+        image: nginx:1.16
+        environment:
+            - TZ="UTC"
         volumes:
-            - ./container-configs/nginx/backend_nextcloud/:/etc/nginx:ro
-            - /srv/www/nextcloud_1:/var/www
+            - ./service-configuration/nginx/nextcloud/conf.d/nextcloud.conf:/etc/nginx/conf.d/nextcloud.conf:ro
+            - ./service-configuration/nginx/nextcloud/nginx.conf:/etc/nginx/nginx.conf:ro
+            - /srv/www/www_nextcloud:/var/www
         depends_on:
-            - php-fpm-nextcloud_1
+            - nextcloud-php
         networks:
             - example-net
         logging:
             driver: journald
             options:
                 labels: "application"
-                tag: "nginx"
+                tag: "nginx|{{.ImageName}}|{{.DaemonName}}"
         labels:
-            application: "nextcloud_1"
+            application: "nextcloud_private"
         restart: always
 
-    nginx_nextcloud_2:
-        image: nginx:1.14
-        volumes:
-            - ./container-configs/nginx/backend_nextcloud_2/:/etc/nginx:ro
-            - /srv/www/nextcloud_2:/var/www
-        depends_on:
-            - php-fpm-nextcloud_2
-        networks:
-            - example-net
-        logging:
-            driver: journald
-            options:
-                labels: "application"
-                tag: "nginx"
-        labels:
-            application: "nextcloud_2"
-        restart: always
-
-    php-fpm-nextcloud_1:
+    nextcloud-php:
         image: php:7.2-fpm
+        environment:
+            - TZ="UTC"
         volumes:
-            - /srv/www/nextcloud_1:/var/www
+            - /srv/www/www_nextcloud:/var/www
         networks:
             - example-net
-        extra_hosts:
-            - "mariadb:172.18.0.20"
         logging:
             driver: journald
             options:
                 labels: "application"
-                tag: "php"
+                tag: "php|{{.ImageName}}|{{.DaemonName}}"
         labels:
-            pplication: "nextcloud_1"
-        restart: always
-
-    php-fpm-nextcloud_2:
-        image: php:7.2-fpm
-        volumes:
-            - /srv/www/nextcloud_2:/var/www
-        networks:
-            - example-net
-        extra_hosts:
-            - "mariadb:172.18.0.20"
-        logging:
-            driver: journald
-            options:
-                labels: "application"
-                tag: "php"
-        labels:
-            application: "nextcloud_2"
+            application: "nextcloud_private"
         restart: always
 
     elasticsearch:
-        image: "docker.elastic.co/elasticsearch/elasticsearch:6.5.0"
+        image: "docker.elastic.co/elasticsearch/elasticsearch:7.2.0"
         hostname: elasticsearch
         ports:
             - "9200:9200"
         environment:
             - bootstrap.memory_lock=true
             - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+            - TZ=UTC
+            - "discovery.type=single-node"
         volumes:
-            - elasticdata:/usr/share/elasticsearch/data
-            - "./container-configs/elk/es/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml"
+            - "./volumes/elasticsearch:/usr/share/elasticsearch/data"
+            - "./service-configuration/elk/es/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml"
         ulimits:
             memlock:
               soft: -1
@@ -119,35 +87,30 @@ services:
             driver: journald
             options:
                 labels: "application"
-                tag: "elasticsearch"
+                tag: "elasticsearch|{{.ImageName}}|{{.DaemonName}}"
         labels:
             application: "elastic"
         restart: always
 
     kibana:
-        image: "docker.elastic.co/kibana/kibana:6.5.0"
+        image: "docker.elastic.co/kibana/kibana:7.2.0"
         hostname: kibana
         ports:
             - "5601:5601"
+        environment:
+            - TZ=UTC
         volumes:
-            - kibanadata:/usr/share/kibana/data
-            - "./container-configs/elk/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml"
+            - "./service-configuration/elk/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml"
         networks:
             - example-net
         logging:
             driver: journald
             options:
                 labels: "application"
-                tag: "kibana"
+                tag: "kibana|{{.ImageName}}|{{.DaemonName}}"
         labels:
             application: "kibana"
         restart: always
-
-volumes:
-    elasticdata:
-        driver: local
-    kibanadata:
-        driver: local
 
 networks:
     example-net:
