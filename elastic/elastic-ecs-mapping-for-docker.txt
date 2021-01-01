@@ -1,11 +1,126 @@
-te/docker-containers
+PUT _template/containers
 {
-  "index_patterns": ["docker-containers-*"],
+  "index_patterns": ["containers-*"],
   "settings": {
     "number_of_shards": 1
   },
    "mappings" : {
       "properties" : {
+         "event": {
+          "type": "object",
+          "properties": {
+            "duration": {
+              "type": "long",
+              "index": true,
+              "ignore_malformed": false,
+              "coerce": true,
+              "doc_values": true,
+              "store": false
+            },
+            "dataset": {
+              "type": "keyword",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "action": {
+              "type": "keyword",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "category": {
+              "type": "keyword",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "code": {
+              "type": "keyword",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "kind": {
+              "type": "keyword",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "provider": {
+              "type": "keyword",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "module": {
+              "type": "keyword",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "original": {
+              "type": "keyword",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "type": {
+              "type": "keyword",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "hash": {
+              "type": "keyword",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "created": {
+              "type": "date"
+            },
+            "end": {
+              "type": "date"
+            },
+            "ingested": {
+              "type": "date"
+            },
+            "start": {
+              "type": "date"
+            }
+          }
+        },
          "tags" : {
             "type" : "keyword"
          },
@@ -15,12 +130,242 @@ te/docker-containers
          "process.name" : {
             "type" : "keyword"
          },
-         "host" : {
+         "host": {
+           "type": "object",
+           "properties": {
+             "hostname": {
+               "type": "text",
+               "fields": {
+                 "keyword": {
+                   "type": "keyword",
+                   "ignore_above": 256
+                }
+              }
+            },
+            "ip": {
+               "type": "ip",
+               "doc_values": true,
+               "index": true,
+               "store": false
+            },
+            "name": {
+               "type": "text",
+               "fields": {
+                 "keyword": {
+                   "type": "keyword",
+                   "ignore_above": 256
+                }
+              }
+            }
+          }
+        },
+         "url" : {
             "properties" : {
-               "ip" : {
-                  "type" : "ip"
+               "original" : {
+                  "type" : "keyword"
                },
-               "name" : {
+               "port" : {
+                  "type" : "long"
+               }
+            }
+         },
+         "user_agent" : {
+            "properties" : {
+               "original" : {
+                  "type" : "keyword"
+               }
+            }
+         },
+         "source": {
+           "type": "object",
+           "properties": {
+             "bytes": {
+              "type": "long",
+              "index": true,
+              "ignore_malformed": false,
+              "coerce": true,
+              "doc_values": true,
+              "store": false
+            },
+             "geo": {
+              "type": "object",
+              "properties": {
+                "city_name": {
+                  "type": "text",
+                  "fields": {
+                    "keyword": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    }
+                  }
+                },
+                "continent_name": {
+                  "type": "text",
+                  "fields": {
+                    "keyword": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    }
+                  }
+                },
+                "country_iso_code": {
+                  "type": "keyword",
+                  "fields": {
+                    "keyword": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    }
+                  }
+                },
+                "country_name": {
+                  "type": "text",
+                  "fields": {
+                    "keyword": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    }
+                  }
+                },
+                "location": {
+                  "type": "geo_point",
+                  "ignore_malformed": false,
+                  "ignore_z_value": true
+                },
+                "region_iso_code": {
+                  "type": "text",
+                  "fields": {
+                    "keyword": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    }
+                  }
+                },
+                "region_name": {
+                  "type": "text",
+                  "fields": {
+                    "keyword": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    }
+                  }
+                }
+              }
+            },
+             "ip": {
+              "type": "ip",
+              "doc_values": true,
+              "index": true,
+              "store": false
+            }
+          }
+        },
+         "destination": {
+           "type": "object",
+           "properties": {
+             "bytes": {
+              "type": "long",
+              "index": true,
+              "ignore_malformed": false,
+              "coerce": true,
+              "doc_values": true,
+              "store": false
+            },
+             "geo": {
+              "type": "object",
+              "properties": {
+                "city_name": {
+                  "type": "text",
+                  "fields": {
+                    "keyword": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    }
+                  }
+                },
+                "continent_name": {
+                  "type": "text",
+                  "fields": {
+                    "keyword": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    }
+                  }
+                },
+                "country_iso_code": {
+                  "type": "keyword",
+                  "fields": {
+                    "keyword": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    }
+                  }
+                },
+                "country_name": {
+                  "type": "text",
+                  "fields": {
+                    "keyword": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    }
+                  }
+                },
+                "location": {
+                  "type": "geo_point",
+                  "ignore_malformed": false,
+                  "ignore_z_value": true
+                },
+                "region_iso_code": {
+                  "type": "text",
+                  "fields": {
+                    "keyword": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    }
+                  }
+                },
+                "region_name": {
+                  "type": "text",
+                  "fields": {
+                    "keyword": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    }
+                  }
+                }
+              }
+            },
+             "ip": {
+              "type": "ip",
+              "doc_values": true,
+              "index": true,
+              "store": false
+            }
+           }
+          },
+         "http" : {
+            "properties" : {
+               "response.status_code" : {
+                  "type" : "long"
+               },
+               "response.body.bytes" : {
+                  "type" : "long"
+               },
+               "response.bytes" : {
+                  "type" : "long"
+               },
+               "request.body.bytes" : {
+                  "type" : "long"
+               },
+               "request.bytes" : {
+                  "type" : "long"
+               },
+               "request.method" : {
+                  "type" : "keyword"
+               },
+               "version" : {
+                  "type" : "keyword"
+               },
+               "request.referrer" : {
                   "type" : "keyword"
                }
             }
