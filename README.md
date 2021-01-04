@@ -29,6 +29,6 @@ Further information could be found in the website referred in repo details.
 ## GeoIP parsing ##
 GeoIP parsing has been recently generalized to be better reusable in other configs.
 
-The file [enrich-geoip.conf](abalage/balagetech-openwrt-syslog-ng-elasticsearch/blob/master/syslog-ng/etc/syslog-ng/conf.d/enrich-geoip.conf) referenced here is maintained in another repository.
+The file [enrich-geoip.conf](https://github.com/abalage/balagetech-openwrt-syslog-ng-elasticsearch/blob/master/syslog-ng/etc/syslog-ng/conf.d/enrich-geoip.conf) referenced here is maintained in another repository.
 
 Please make sure you use that repo for up to date version.
